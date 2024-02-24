@@ -51,7 +51,7 @@ The script will automatically:
 2. Process each report to extract and format CVE details.
 3. Send out a notification for each CVE, ensuring no duplicates are sent.
 
-<img width="615" alt="image" src="https://github.com/praxxley-tech/openCEV/assets/82277204/5fc9baa7-3701-46df-ab92-16bcc45eee96">
+<img width="513" alt="image" src="https://github.com/praxxley-tech/openCEV/assets/82277204/f1541fa0-0f79-42d7-8868-cc994efd2cc3">
 
 ### Alert Format
 
