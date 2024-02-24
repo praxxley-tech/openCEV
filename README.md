@@ -22,13 +22,13 @@ The CVE Alert System is a Python-based application designed to automate the moni
 
 Clone this repository to your local machine using:
 
-git clone <repository-url>
+    git clone <repository-url>
 
 ### Step 2: Install Dependencies
 
 Navigate to the cloned repository's directory and install the required Python libraries:
 
-pip install -r requirements.txt
+    pip install -r requirements.txt
 
 ### Step 3: Configuration
 
@@ -43,7 +43,7 @@ Ensure that these sensitive details are securely stored and not hard-coded in th
 
 To run the CVE Alert System, execute the script from your command-line interface:
 
-python cve_alert_system.py
+    python cve_alert_system.py
 
 The script will automatically:
 
