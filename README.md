@@ -89,10 +89,6 @@ Contributions to the CVE Alert System are welcome. If you have suggestions for i
 
 Your contributions will be reviewed as soon as possible. We appreciate your effort to enhance the functionality and performance of the CVE Alert System!
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contact
 
 For any questions or concerns regarding this project, or if you need support, please reach out to the repository owner.
