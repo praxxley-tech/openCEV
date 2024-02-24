@@ -3,10 +3,10 @@ import requests
 from requests.auth import HTTPBasicAuth
 import subprocess
 
-base_url = "http://192-46-239-94.ip.linodeusercontent.com:8000/api"
-ntfy_url = "http://192-46-239-94.ip.linodeusercontent.com/restAPI"
-username = 'dave'
-password = 'MM+mVss1988gz'
+base_url = "http://example.com:8000/api"
+ntfy_url = "http://example.com/restAPI"
+username = <username>
+password = <password>
 
 sent_cves_file = 'sent_cves.txt'
 
