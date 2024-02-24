@@ -62,6 +62,8 @@ CVE: <CVE ID>
 Score: <CVSS Score>
 Summary: <CVE Summary>
 
+<img width="516" alt="image" src="https://github.com/praxxley-tech/openCEV/assets/82277204/eb2d482f-4036-4deb-9217-c81c0ec7e8b8">
+
 ## Security and Privacy
 
 Ensure to handle authentication credentials and sensitive information with care:
