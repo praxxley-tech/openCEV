@@ -233,7 +233,7 @@ cert-file: "/etc/letsencrypt/live/example.com/fullchain.pem"
 # - upstream-access-token is the token used to authenticate with the upstream server. This is only required
 #   if you exceed the upstream rate limits, or the uptream server requires authentication.
 #
-upstream-base-url: "https://ntfy.sh"
+upstream-base-url: "https://example.com"
 # upstream-access-token:
 
 # Rate limiting: Total number of topics before the server rejects new topics.
