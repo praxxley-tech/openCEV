@@ -22,13 +22,13 @@ The CVE Alert System is a Python-based application designed to automate the moni
 
 Clone this repository to your local machine using:
 
-git clone <repository-url>
+    git clone <repository-url>
 
 ### Step 2: Install Dependencies
 
 Navigate to the cloned repository's directory and install the required Python libraries:
 
-pip install -r requirements.txt
+    pip install -r requirements.txt
 
 ### Step 3: Configuration
 
@@ -43,13 +43,15 @@ Ensure that these sensitive details are securely stored and not hard-coded in th
 
 To run the CVE Alert System, execute the script from your command-line interface:
 
-python cve_alert_system.py
+    python cve_alert_system.py
 
 The script will automatically:
 
 1. Fetch the list of CVE reports from the configured API endpoint.
 2. Process each report to extract and format CVE details.
 3. Send out a notification for each CVE, ensuring no duplicates are sent.
+
+<img width="513" alt="image" src="https://github.com/praxxley-tech/openCEV/assets/82277204/f1541fa0-0f79-42d7-8868-cc994efd2cc3">
 
 ### Alert Format
 
@@ -61,6 +63,8 @@ ID: <Report ID>
 CVE: <CVE ID>
 Score: <CVSS Score>
 Summary: <CVE Summary>
+
+<img width="516" alt="image" src="https://github.com/praxxley-tech/openCEV/assets/82277204/eb2d482f-4036-4deb-9217-c81c0ec7e8b8">
 
 ## Security and Privacy
 
