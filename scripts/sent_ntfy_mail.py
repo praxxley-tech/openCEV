@@ -4,7 +4,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 
-def read_sent_cves(file_path):
+email = os.getenv('EMAIL')
+
+def read_sent_cves(file_path="sent_cves.txt"):
     try:
         with open(file_path, 'r') as file:
             return file.read().splitlines()
@@ -45,6 +47,6 @@ def send_email_via_smtp(subject, body, to_email, smtp_info, cve_value_string, ex
 
 subject = "🚨CVE-Alarm🚨"
 body = ""
-to_email = "d.rennhard@gmail.com"
+to_email = email
 
 send_email_via_smtp(subject, body, to_email, smtp_info, cve_value_string, extracted_data_string)
