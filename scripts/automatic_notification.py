@@ -1,101 +1,113 @@
-# -*- coding: utf-8 -*-
+import json
+import os
+import subprocess
 import requests
 from requests.auth import HTTPBasicAuth
-import subprocess
+from datetime import datetime
 
-base_url = "http://example.com:8000/api"
-ntfy_url = "http://example.com/restAPI"
-username = <username>
-password = <password>
+username = os.getenv('API_USERNAME')
+password = os.getenv('API_PASSWORD')
+base_url = "https://opencve.secopsitpoint.ch/api/reports"
 
-sent_cves_file = 'sent_cves.txt'
-
-def get_request(url):
-    """Führt eine GET-Anfrage mit Basic Auth aus."""
-    response = requests.get(url, auth=HTTPBasicAuth(username, password))
-    if response.status_code == 200:
+def get_report_ids():
+    response = requests.get(f"{base_url}",auth=HTTPBasicAuth(username, password))
+    if response.ok:
         return response.json()
-    else:
-        print(f"Fehler bei der Anfrage zu {url}: {response.status_code}")
+    return []
+
+def get_detailed_reports():
+    report_ids = get_report_ids()
+    detailed_reports = []
+    for report in report_ids:
+        report_id = report['id']
+        detailed_report_url = f"{base_url}/{report_id}"
+        response = requests.get(detailed_report_url, auth=HTTPBasicAuth(username, password))
+        report_details = response.json()
+        detailed_reports.append(report_details) 
+    return detailed_reports
+
+result = get_detailed_reports()
+
+def extract_key_values(results, keys):
+    def get_value_by_path(dict_obj, path):
+        parts = path.split('.')
+        for part in parts[:-1]: 
+            if isinstance(dict_obj, dict) and part in dict_obj:
+                dict_obj = dict_obj[part]
+            elif isinstance(dict_obj, list):
+                return [get_value_by_path(elem, '.'.join(parts[parts.index(part):])) for elem in dict_obj if isinstance(elem, dict)]
+            else:
+                return None
+        if isinstance(dict_obj, dict):
+            return dict_obj.get(parts[-1])
         return None
 
-def process_cve_details(cve_id, report_id):
-    """Ruft die Details für eine spezifische CVE-ID ab und verarbeitet sie."""
-    cve_url = f"{base_url}/cve/{cve_id}"
-    cve_details = get_request(cve_url)
-    if cve_details:
-        cvss = cve_details.get('cvss', {}).get('v3', 'Unbekannt')
-        vendors_info = ", ".join([f"{vendor}: {', '.join(products)}" for vendor, products in cve_details.get('vendors', {}).items()])
-        return f"Titel: {vendors_info}\nID: {report_id}\nCVE: {cve_id}\nScore: {cvss}\n"
-    return None
+    extracted_values = {key: [] for key in keys}
+    for result in results:
+        for key in keys:
+            value = get_value_by_path(result, key)
+            if value is not None:
+                if isinstance(value, list): 
+                    extracted_values[key].extend(value)
+                else:
+                    extracted_values[key].append(value)
+    return extracted_values
 
-def process_reports():
-    """Ruft die Liste der Berichte ab und verarbeitet jeden Bericht, um CVE-Details zu sammeln."""
-    reports_url = f"{base_url}/reports"
-    reports = get_request(reports_url)
-    all_notifications = []
+def extract_cve_values(data):
+    cve_values = []
+    for item in data:
+        if 'alerts' in item and isinstance(item['alerts'], list):
+            for alert in item['alerts']:
+                if 'cve' in alert:
+                    cve_values.append(alert['cve'])
+    return cve_values
 
-    if reports:
-        for report in reports:
-            report_id = report.get('id')
-            report_detail_url = f"{base_url}/reports/{report_id}"
-            report_details = get_request(report_detail_url)
+def format_extracted_data(extracted_data):
+    formatted_data = []
+    for key in extracted_data:
+        values = extracted_data[key]
+        if isinstance(values[0], list):
+            values = [', '.join(value) for value in values]
+        formatted_data.append(f"{key}: {'; '.join(values)}")
+    return '\n'.join(formatted_data)
 
-            for alert in report_details.get('alerts', []):
-                cve_id = alert.get('cve')
-                cvss = alert.get('cvss') 
-                cve_notification = process_cve_details(cve_id, report_id)
-                if cve_notification:
-                    parts = cve_notification.split("\n")
-                    if len(parts) >= 4:
-                        title, _, _, score = parts[:4]
-                        send_ntfy(title.split(":")[1].strip(), report_id, cve_id, score.split(":")[1].strip(), ntfy_url)
+cve_values = extract_cve_values(result)
+cve_value_string = ', '.join(cve_values)
+keys_to_extract = ["id", "details"]
+extracted_data = extract_key_values(result, keys_to_extract)
+extracted_data_string = format_extracted_data(extracted_data)
 
-def send_ntfy(title, id, cve, score, ntfy_url, sent_cves_file='sent_cves.txt'):
-    """Sendet die Nachricht an ntfy."""
-    cve_details = (
-        f"Titel: {title}\n"
-        f"ID: {id}\n"
-        f"CVE: {cve}\n"
-        f"Score: {score}\n"
-    )
+print("CVE:", cve_value_string)
+print(extracted_data_string)
+
+
+Message = (f"{cve_value_string}\n"
+           f"{extracted_data_string}")
+
+def check_and_send_cve(cve_value_string, extracted_data_string):
+    file_path = "sent_cves.txt"
+    
     try:
-        cve_details = cve_details.replace('\\n', '\n')
+        with open(file_path, 'r') as file:
+            sent_cves = file.read().splitlines()
+    except FileNotFoundError:
+        sent_cves = []
+
+    if cve_value_string not in sent_cves:
+        message = (f"🚨CVE-Alarm🚨\n"
+                   f"{cve_value_string}\n"
+                   f"{extracted_data_string}")
         
-        cve_details = cve_details.strip(' "\'\n')
+        response = requests.post("https://ntfy.secopsitpoint.ch/Daily_Updates",
+                                 data=message.encode(encoding='utf-8'))
         
-        try:
-            open(sent_cves_file, 'r')
-        except FileNotFoundError:
-            open(sent_cves_file, 'w').close()
+        if response.ok:
+            print(f"Nachricht erfolgreich gesendet: {cve_value_string}")
+            with open(file_path, 'a') as file:
+                file.write(f"{cve_value_string}\n")
+        else:
+            print(f"Fehler beim Senden der Nachricht: {response.text}")
+    else:
+        print(f"CVE {cve_value_string} wurde bereits gesendet.")
 
-        with open(sent_cves_file, 'r') as file:
-            sent_cves = [line.strip() for line in file.readlines()]
-            if cve in sent_cves:
-                print(f"CVE {cve} wurde bereits gesendet.")
-                return
-
-        cve_title = f"🚨🚨 CVE Alert: {cve} 🚨🚨\n"
-
-        full_message = cve_title + cve_details
-
-        curl_command = [
-            'curl', '-d', f"'{full_message}'", 
-            '-H', 'Content-Type: application/json',
-            ntfy_url
-        ]
-        
-
-        subprocess.run(curl_command, check=True)
-
-        with open(sent_cves_file, 'a') as file:
-            file.write(cve + '\n')
-        
-        print("Benachrichtigung erfolgreich gesendet.")
-    except subprocess.CalledProcessError as e:
-        print(f"Fehler beim Senden der Benachrichtigung: {e}")
-    except Exception as e:
-        print(f"Allgemeiner Fehler: {e}")
-
-if __name__ == "__main__":
-    process_reports()
+check_and_send_cve(cve_value_string, extracted_data_string)
