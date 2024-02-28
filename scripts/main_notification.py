@@ -8,7 +8,7 @@ from datetime import datetime
 
 username = os.getenv('API_USERNAME')
 password = os.getenv('API_PASSWORD')
-base_url = "https://opencve.secopsitpoint.ch/api/reports"
+base_url = os.getenv('BASE_URL')
 
 smtp_info = {
     "smtp_server": os.getenv('SMTP_SERVER'),
