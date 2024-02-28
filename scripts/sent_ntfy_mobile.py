@@ -1,7 +1,9 @@
 from main_notification import *
 
+base_ntfy_url = os.getenv('BASE_NTFY_URL')
+
 def check_and_send_cve(cve_value_string, extracted_data_string, file_path="sent_cves.txt"):
-    file_path = "sent_cves.txt"
+    file_path = "sent_cves_mobile.txt"
     
     try:
         with open(file_path, 'r') as file:
@@ -14,7 +16,7 @@ def check_and_send_cve(cve_value_string, extracted_data_string, file_path="sent_
                    f"{cve_value_string}\n"
                    f"{extracted_data_string}")
         
-        response = requests.post("https://ntfy.secopsitpoint.ch/Daily_Updates",
+        response = requests.post({base_ntfy_url},
                                  data=message.encode(encoding='utf-8'))
         
         if response.ok:
