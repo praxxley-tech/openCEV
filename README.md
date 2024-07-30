@@ -22,7 +22,7 @@ The CVE Alert System is a Python-based application designed to automate the moni
 
 Clone this repository to your local machine using:
 
-    git clone <repository-url>
+    git clone https://github.com/praxxley-tech/openCEV
 
 ### Step 2: Install Dependencies
 
