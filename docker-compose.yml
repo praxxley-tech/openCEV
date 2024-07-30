@@ -22,13 +22,13 @@ services:
             dockerfile: Dockerfile
         depends_on:
             - postgres
-        command: webserver -b 0.0.0.0:8000 --certfile /etc/letsencrypt/live/www.secopsitpoint.ch/fullchain.pem --keyfile /etc/letsencrypt/live/www.secopsitpoint.ch/privkey.pem
+        command: webserver -b 0.0.0.0:8000 --certfile /etc/letsencrypt/live/www.example.ch/fullchain.pem --keyfile /etc/letsencrypt/live/www.example.ch/privkey.pem
         networks:
             - backend
         ports:
             - "8000:8000"
         environment:
-            - HOST=secopsitpoint.ch
+            - HOST=example.ch
     celery_beat:
         <<: *opencve_defaults
         container_name: celery_beat
